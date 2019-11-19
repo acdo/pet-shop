@@ -102,9 +102,10 @@ App = {
 
       App.contracts.Adoption.deployed().then(function(instance) {
         adoptionInstance = instance;
+        const wei = web3.toWei(0.5, 'ether');
 
         // Execute adopt as a transaction by sending account
-        return adoptionInstance.adopt(petId, {from: account, value: 50000, gas: 3000000});
+        return adoptionInstance.adopt(petId, {from: account, value: wei});
       }).then(function(result) {
         return App.markAdopted();
       }).catch(function(err) {
