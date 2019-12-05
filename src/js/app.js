@@ -14,6 +14,7 @@ App = {
         petTemplate.find('.pet-breed').text(data[i].breed);
         petTemplate.find('.pet-age').text(data[i].age);
         petTemplate.find('.pet-location').text(data[i].location);
+        petTemplate.find('.pet-price').text(data[i].price);
         petTemplate.find('.btn-adopt').attr('data-id', data[i].id);
 
         petsRow.append(petTemplate.html());
@@ -99,10 +100,15 @@ App = {
       }
 
       var account = accounts[0];
+      
 
       App.contracts.Adoption.deployed().then(function(instance) {
         adoptionInstance = instance;
-        const wei = web3.toWei(0.5, 'ether');
+        return adoptionInstance.getPrice(petId);
+      }).then(function(result) {
+        var petPrice = parseInt(result);
+        console.log(petPrice);
+        const wei = web3.toWei(Number(petPrice), 'ether');
 
         // Execute adopt as a transaction by sending account
         return adoptionInstance.adopt(petId, {from: account, value: wei});
