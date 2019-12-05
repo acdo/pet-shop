@@ -8,7 +8,7 @@ App = {
       var petsRow = $('#petsRow');
       var petTemplate = $('#petTemplate');
 
-      for (i = 0; i < data.length; i ++) {
+      for (i = 0; i < data.length - 1; i ++) {
         petTemplate.find('.panel-title').text(data[i].name);
         petTemplate.find('img').attr('src', data[i].picture);
         petTemplate.find('.pet-breed').text(data[i].breed);
@@ -19,6 +19,13 @@ App = {
 
         petsRow.append(petTemplate.html());
       }
+
+      // Now load dogcoin
+      var coinRow = $('#coinRow');
+      var coinTemplate = $('#coinTemplate');
+      coinTemplate.find('.panel-title').text(data[16].name);
+      coinTemplate.find('.coin-price').text(data[16].price);
+      coinRow.append(coinTemplate.html());
     });
 
     return await App.initWeb3();

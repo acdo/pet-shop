@@ -142,5 +142,9 @@
     "breed": "Golden Retriever",
     "location": "Dawn, Wisconsin",
     "price": 1
+  },
+  {
+    "name": "Dog Coin",
+    "price": 1
   }
 ]
