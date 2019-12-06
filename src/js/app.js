@@ -75,6 +75,7 @@ App = {
       App.contracts.DogCoin = TruffleContract(DogCoinArtifact);
       App.contracts.DogCoin.setProvider(App.web3Provider);
 
+      App.UpdateValue(); 
     })
 
     return App.bindEvents();
@@ -103,15 +104,18 @@ App = {
     });
   },
 
-  /* 'sends' dogCoin by burning it into nothingness */
+  /* 'sends' dogCoin */
   sendDogCoin: function(amount) {
     var dogCoinInstance; 
-    
+    var success = true; 
     App.contracts.DogCoin.deployed().then(function(instance) {
         dogCoinInstance = instance; 
-        return dogCoinInstance.burn(amount);
+        return dogCoinInstance.transfer(instance.address, amount);
+      }).then(function(result) {
+        return App.updateValue(); 
       }).catch(function(err) {
       console.log(err.message);
+      //success = false;  
     });
     return true; 
   },
@@ -127,7 +131,6 @@ App = {
         console.log(balance); 
         $('#curr_balance').text(balance);
       });
-      return true; 
   }, 
 
 
@@ -163,8 +166,7 @@ App = {
         return adoptionInstance.adopt(petId);
       }).then(function(result) {
         return App.markAdopted();
-      }).then(function(result){
-        App.updateValue(); //change the displayed amount of coins 
+        
       }).catch(function(err) {
         console.log(err.message);
       });

@@ -4,7 +4,7 @@ contract DogCoin {
 
     string public constant name = "DogCoin";
     string public constant symbol = "DGC";
-    uint8 public constant decimals = 18;  
+    uint8 public constant decimals = 0;  //only whole token amounts 
 
 
     event Approval(address indexed tokenOwner, address indexed spender, uint tokens);
