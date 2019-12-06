@@ -5,7 +5,7 @@ contract Adoption {
 	uint[16] public prices = [3, 3, 2, 2, 5, 1, 3, 3, 2, 1, 3, 2, 5, 3, 2, 1];
 
 	// Adopting a pet
-	function adopt(uint petId) public payable returns (uint) {
+	function adopt(uint petId) public returns (uint) {
 		require(petId >= 0 && petId <= 15);
 
 		adopters[petId] = msg.sender;

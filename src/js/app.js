@@ -68,12 +68,21 @@ App = {
       // Use our contract to retrieve and mark the adopted pets
       return App.markAdopted();
     });
+    // Initialize the Dogcoin contract 
+    $.getJSON('DogCoin.json', function(data) {
+
+      var DogCoinArtifact = data;
+      App.contracts.DogCoin = TruffleContract(DogCoinArtifact);
+      App.contracts.DogCoin.setProvider(App.web3Provider);
+
+    })
 
     return App.bindEvents();
   },
 
   bindEvents: function() {
     $(document).on('click', '.btn-adopt', App.handleAdopt);
+    $(document).on('click', '.btn-coin', App.handleCoin); 
   },
 
   markAdopted: function(adopters, account) {
@@ -94,6 +103,34 @@ App = {
     });
   },
 
+  /* 'sends' dogCoin by burning it into nothingness */
+  sendDogCoin: function(amount) {
+    var dogCoinInstance; 
+    
+    App.contracts.DogCoin.deployed().then(function(instance) {
+        dogCoinInstance = instance; 
+        return dogCoinInstance.burn(amount);
+      }).catch(function(err) {
+      console.log(err.message);
+    });
+    return true; 
+  },
+
+  /* Update the current displayed coin amount of coins */ 
+  updateValue: function(){
+    App.contracts.DogCoin.deployed().then(function(instance) {
+        dogCoinInstance = instance; 
+        return dogCoinInstance.myBalance();
+      }).then(function(result){
+        var balance = result.toString(); 
+        alert(`you now have ${balance} coins`); 
+        console.log(balance); 
+        $('#curr_balance').text(balance);
+      });
+      return true; 
+  }, 
+
+
   handleAdopt: function(event) {
     event.preventDefault();
 
@@ -108,26 +145,64 @@ App = {
 
       var account = accounts[0];
       
+      var petPrice; 
 
       App.contracts.Adoption.deployed().then(function(instance) {
         adoptionInstance = instance;
         return adoptionInstance.getPrice(petId);
       }).then(function(result) {
-        var petPrice = parseInt(result);
+        petPrice = parseInt(result);
         console.log(petPrice);
-        const wei = web3.toWei(Number(petPrice), 'ether');
+        // const wei = web3.toWei(Number(petPrice), 'ether');
+        // send amount in dog coin? 
 
         // Execute adopt as a transaction by sending account
-        return adoptionInstance.adopt(petId, {from: account, value: wei});
+        // First send money 
+        return App.sendDogCoin(petPrice);
+      }).then(function(result){
+        return adoptionInstance.adopt(petId);
       }).then(function(result) {
         return App.markAdopted();
+      }).then(function(result){
+        App.updateValue(); //change the displayed amount of coins 
       }).catch(function(err) {
         console.log(err.message);
       });
-    });
-  }
 
-};
+      //then send DogCoin
+      //console.log(petPrice); 
+      //App.sendDogCoin(petPrice);
+
+    });
+  },
+
+  //handle events of buying additional coins on the dialogue, where it should require sending 
+  //ethereum and then change the amount of coins displayed 
+  handleCoin: function(event) {
+    //event.preventDefault();
+    
+    // this needs to send in ethereum 
+    var dogCoinInstance; 
+    web3.eth.getAccounts(function(error, accounts) {
+      if (error) {
+        console.log(error);
+      }
+
+    var account = accounts[0];
+    App.contracts.DogCoin.deployed().then(function(instance) {
+        dogCoinInstance = instance;
+        const wei = web3.toWei(1, 'ether'); 
+        return dogCoinInstance.buyDogCoin(1, {from: account, value: wei}); 
+      }).then(function(result){
+        return App.updateValue();    
+      }).catch(function(err) {
+        console.log(err.message);
+      });
+  })
+}, 
+
+
+}
 
 $(function() {
   $(window).load(function() {
